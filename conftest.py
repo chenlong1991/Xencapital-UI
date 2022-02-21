@@ -1,4 +1,7 @@
 # -*-coding:utf-8 -*-
+import os
+
+import allure
 import pytest
 from os import environ
 
@@ -6,6 +9,8 @@ from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 
 from common.tools import logger
+
+_driver = None
 
 
 @pytest.fixture(scope='function')
@@ -27,7 +32,7 @@ def lambdatest_driver(request):
     # selenium_endpoint = "http://{}:{}@hub.lambdatest.com/wd/hub".format(username, access_key)
     # desired_caps['build'] = build
     # desired_caps['name'] = test_name
-
+    global _driver
     desired_caps = {
         "platform": "Windows 10",
         "browserName": "chrome",
@@ -41,18 +46,19 @@ def lambdatest_driver(request):
 
     selenium_endpoint = "http://{}:{}@hub.lambdatest.com/wd/hub".format(username, access_key)
     executor = RemoteConnection(selenium_endpoint, resolve_ip=False)
-    browser = webdriver.Remote(
-        command_executor=executor,
-        desired_capabilities=desired_caps
-    )
-    yield browser
+    if _driver is None:
+        _driver = webdriver.Remote(
+            command_executor=executor,
+            desired_capabilities=desired_caps
+        )
+    yield _driver
 
     def fin():
         if request.node.rep_call.failed:
-            browser.execute_script("lambda-status=failed")
+            _driver.execute_script("lambda-status=failed")
         else:
-            browser.execute_script("lambda-status=passed")
-            browser.quit()
+            _driver.execute_script("lambda-status=passed")
+            _driver.quit()
 
     request.addfinalizer(fin)
 
@@ -69,16 +75,45 @@ def pytest_runtest_makereport(item, call):
     setattr(item, "rep_" + rep.when, rep)
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    获取每个用例状态的钩子函数
+    :param item: 测试用例
+    :param call: 测试步骤
+    :return:
+    """
+    # 获取钩子方法的调用结果
+    outcome = yield
+    rep = outcome.get_result()
+    # rep.when表示测试步骤，仅仅获取用例call 执行结果是失败的情况, 不包含 setup/teardown
+    if rep.when == "call" and rep.failed:
+        mode = "a" if os.path.exists("failures") else "w"
+        with open("failures", mode) as f:
+            if "tmpdir" in item.fixturenames:
+                extra = " (%s)" % item.funcargs["tmpdir"]
+            else:
+                extra = ""
+            f.write((rep.nodeid + extra + "\n"))
+        # 添加allure报告截图
+        if hasattr(_driver, "get_screenshot_as_png"):
+            with allure.step('用例执行失败时，添加失败截图...'):
+                logger.error("用例执行失败，捕获当前页面......")
+                allure.attach(_driver.get_screenshot_as_png(), "失败截图", allure.attachment_type.PNG)
+
+
 @pytest.fixture(scope='class')
 def driver():
+    global _driver
     try:
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-        driver.implicitly_wait(10)
-        logger.info('初始化driver')
-        yield driver
+        if _driver is None:
+            _driver = webdriver.Chrome()
+            _driver.maximize_window()
+            _driver.implicitly_wait(10)
+            logger.info('初始化driver')
+        yield _driver
         logger.info('关闭浏览器')
-        driver.quit()
+        _driver.quit()
     except Exception as e:
         logger.info('初始化driver错误{}'.format(e))
         raise
