@@ -109,15 +109,15 @@ def driver():
         if _driver is None:
             chrome_options = webdriver.ChromeOptions()
             # 无浏览器模式
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--disable-dev-shm-usage')
+            # chrome_options.add_argument('--headless')
+            # chrome_options.add_argument('--disable-dev-shm-usage')
             # 以最高权限运行
             chrome_options.add_argument('--no-sandbox')
             # 谷歌文档提到需要加上这个属性来规避bug
             chrome_options.add_argument('--disable-gpu')
             # 最大化启动
             chrome_options.add_argument('--start - maximized')
-            _driver = webdriver.Chrome()
+            _driver = webdriver.Chrome(chrome_options=chrome_options)
             # 隐式等待
             _driver.implicitly_wait(10)
             logger.info('初始化driver')
