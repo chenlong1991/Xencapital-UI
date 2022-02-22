@@ -107,8 +107,15 @@ def driver():
     global _driver
     try:
         if _driver is None:
+            chrome_options = webdriver.ChromeOptions()
+            # 以最高权限运行
+            chrome_options.add_argument('--no-sandbox')
+            # 谷歌文档提到需要加上这个属性来规避bug
+            chrome_options.add_argument('--disable-gpu')
+            # 最大化启动
+            chrome_options.add_argument('--start - maximized')
             _driver = webdriver.Chrome()
-            _driver.maximize_window()
+            # 隐式等待
             _driver.implicitly_wait(10)
             logger.info('初始化driver')
         yield _driver

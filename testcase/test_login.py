@@ -17,7 +17,7 @@ class TestLogin:
     @pytest.mark.parametrize('title, email, password, checkpoint', data)
     @allure.story('老用户登录')
     @allure.title('{title}')
-    @allure.testcase('www.baidu.com', name='对应功能测试用例')
+    @allure.testcase('https://www.baidu.com', name='对应功能测试用例')
     @allure.severity("normal")
     def test_login(self, driver, title, email, password, checkpoint):
         login_page = LoginPage(driver)

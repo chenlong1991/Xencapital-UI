@@ -16,6 +16,3 @@ class LoginPageLoc:
 
     # 登录按钮
     login_button = ('xpath', "//button[@type='submit']")
-
-    # 错误信息
-    error_message = ('xpath', "//div[@class='v-snack__wrapper v-sheet theme--dark error']")
