@@ -116,8 +116,8 @@ def driver():
             # 谷歌文档提到需要加上这个属性来规避bug
             # chrome_options.add_argument('--disable-gpu')
             # 最大化启动
-            # chrome_options.add_argument('--start - maximized')
-            chrome_options.add_argument('window-size=1920x1080')
+            chrome_options.add_argument('--start - maximized')
+            # chrome_options.add_argument('window-size=1920x1080')
             _driver = webdriver.Chrome(chrome_options=chrome_options)
             # 隐式等待
             _driver.implicitly_wait(10)
