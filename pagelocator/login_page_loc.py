@@ -12,7 +12,7 @@ class LoginPageLoc:
     email_address = ('xpath', "//div[@label='Input your email address']//input")
 
     # 密码文本框
-    password = ('xpath', "//input[@id='input-38']")
+    password = ('xpath', "//input[@autocomplete="new-password"]")
 
     # 登录按钮
     login_button = ('xpath', "//button[@type='submit']")
