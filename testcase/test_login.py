@@ -23,4 +23,4 @@ class TestLogin:
         login_page = LoginPage(driver)
         login_page.login(email, password)
         logger.info('断言预期结果')
-        assert login_page.wait_ele_visible(checkpoint)
+        assert login_page.wait_ele_visible(checkpoint, timeout=20)
