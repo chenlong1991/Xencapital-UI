@@ -6,9 +6,7 @@ import allure
 
 from common.basepage import BasePage
 from pagelocator.login_page_loc import LoginPageLoc as loc
-from testdata.login_data import data
 from common.tools import logger
-import time
 
 
 class LoginPage(BasePage):

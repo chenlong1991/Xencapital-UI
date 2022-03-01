@@ -5,19 +5,17 @@
 """
 import allure
 import pytest
-from pagelocator.login_page_loc import LoginPageLoc as loc
-from testdata.login_data import data
+from testdata.auth_data import test_login_data
 from common.tools import logger
-import time
 from pageobjects.login_page import LoginPage
 
 
 @allure.feature('登录功能')
-class TestLogin:
-    @pytest.mark.parametrize('title, email, password, checkpoint', data)
+class TestAuth:
+    @pytest.mark.parametrize('title, email, password, checkpoint', test_login_data)
     @allure.story('老用户登录')
     @allure.title('{title}')
-    @allure.testcase('https://www.baidu.com', name='对应功能测试用例')
+    @allure.testcase(r'http://www.baidu.com', name='对应功能测试用例')
     @allure.severity("normal")
     def test_login(self, driver, title, email, password, checkpoint):
         login_page = LoginPage(driver)

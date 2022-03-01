@@ -7,8 +7,10 @@ from os import environ
 
 from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import RemoteConnection
+from pageobjects.login_page import LoginPage
+from common.basepage import BasePage
 
-from common.tools import logger
+from common.tools import logger, conf_get
 
 _driver = None
 
@@ -78,7 +80,7 @@ def pytest_runtest_makereport(item, call):
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
-    获取每个用例状态的钩子函数
+    获取每个用例状态的钩子函数,添加用例失败截图功能实现
     :param item: 测试用例
     :param call: 测试步骤
     :return:
@@ -102,29 +104,86 @@ def pytest_runtest_makereport(item, call):
                 allure.attach(_driver.get_screenshot_as_png(), "失败截图", allure.attachment_type.PNG)
 
 
-@pytest.fixture(scope='class')
+# @pytest.fixture(scope='class')
+# def _driver():
+#     global _driver
+#     try:
+#         if _driver is None:
+#             chrome_options = webdriver.ChromeOptions()
+#             # 无浏览器模式
+#             chrome_options.add_argument('--headless')
+#             chrome_options.add_argument('--disable-dev-shm-usage')
+#             # 以最高权限运行
+#             chrome_options.add_argument('--no-sandbox')
+#             # 谷歌文档提到需要加上这个属性来规避bug
+#             chrome_options.add_argument('--disable-gpu')
+#             # 最大化启动
+#             # chrome_options.add_argument('--start - maximized')
+#             chrome_options.add_argument('window-size=1920x1080')
+#             _driver = webdriver.Chrome(chrome_options=chrome_options)
+#             # 隐式等待
+#             _driver.implicitly_wait(10)
+#             logger.info('初始化driver')
+#             logger.info(_driver)
+#
+#         yield _driver
+#         logger.info('关闭浏览器')
+#         _driver.quit()
+#     except Exception as e:
+#         logger.error('初始化driver错误{}'.format(e))
+#         raise
+
+@pytest.fixture()
 def driver():
     global _driver
     try:
-        if _driver is None:
-            chrome_options = webdriver.ChromeOptions()
-            # 无浏览器模式
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            # 以最高权限运行
-            chrome_options.add_argument('--no-sandbox')
-            # 谷歌文档提到需要加上这个属性来规避bug
-            chrome_options.add_argument('--disable-gpu')
-            # 最大化启动
-            # chrome_options.add_argument('--start - maximized')
-            chrome_options.add_argument('window-size=1920x1080')
-            _driver = webdriver.Chrome(chrome_options=chrome_options)
-            # 隐式等待
-            _driver.implicitly_wait(10)
-            logger.info('初始化driver')
+        _driver = webdriver.Chrome()
+        # 最大化浏览器
+        _driver.maximize_window()
+        # 隐式等待
+        _driver.implicitly_wait(10)
+        logger.info('初始化driver')
         yield _driver
-        logger.info('关闭浏览器')
+        # logger.info('关闭浏览器')
         _driver.quit()
     except Exception as e:
-        logger.info('初始化driver错误{}'.format(e))
+        logger.error('初始化driver错误{}'.format(e))
         raise
+
+
+@pytest.fixture()
+def admin_driver(driver):
+    """
+    admin用户登录
+    """
+    logger.info('读取用户名，密码')
+    logger.info('用户名:{}，密码:{}'.format(conf_get('arocarret', 'admin_email'), conf_get('arocarret', 'admin_password')))
+    LoginPage(driver).login(conf_get('arocarret', 'admin_email'), conf_get('arocarret', 'admin_password'))
+    yield driver
+
+
+@pytest.fixture()
+def investor_driver(driver):
+    """
+    investor用户登录
+    """
+    global _driver
+    try:
+        if _driver is None:
+            logger.info('初始化driver')
+            _driver = webdriver.Chrome()
+            # 最大化浏览器
+            _driver.maximize_window()
+            # 隐式等待
+            _driver.implicitly_wait(10)
+    except Exception as e:
+        logger.error('初始化driver错误{}'.format(e))
+        raise
+    logger.info('读取用户名，密码')
+    login = LoginPage(_driver)
+    login.login(conf_get('arocarret', 'investor_email'), conf_get('arocarret', 'investor_password'))
+    logger.info('用户名:{}，密码:{}'.format(conf_get('arocarret', 'admin_email'), conf_get('arocarret', 'admin_password')))
+    yield _driver
+    logger.info('关闭浏览器')
+    _driver.quit()
+    _driver = None

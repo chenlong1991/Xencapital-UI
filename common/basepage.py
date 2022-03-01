@@ -20,8 +20,24 @@ class BasePage:
         logger.info('打开网页：{}'.format(url))
         self.driver.get(url)
 
+    # 判断元素是否存在
+    def wait_ele_existence(self, loc, timeout=20, poll_frequency=0.5):
+        """
+        :param loc:元素定位表达;元组类型,表达方式(元素定位类型,元素定位方法)
+        :param timeout:等待的上限
+        :param poll_frequency:轮询频率
+        :return:None
+        """
+        logger.info('元素存在,定位方式:{}'.format(loc))
+        try:
+            WebDriverWait(self.driver, timeout, poll_frequency).until(EC.presence_of_element_located(loc))
+            return True
+        except Exception as e:
+            logger.exception('元素不存在：{}'.format(e))
+            return False
+
     # 等待元素可见
-    def wait_ele_visible(self, loc, timeout=30, poll_frequency=0.5):
+    def wait_ele_visible(self, loc, timeout=20, poll_frequency=0.5):
         """
         :param loc:元素定位表达;元组类型,表达方式(元素定位类型,元素定位方法)
         :param timeout:等待的上限
@@ -37,7 +53,7 @@ class BasePage:
             return False
 
     # 等待元素不可见
-    def wait_ele_no_visible(self, loc, timeout=30, poll_frequency=0.5):
+    def wait_ele_no_visible(self, loc, timeout=20, poll_frequency=0.5):
         """
         :param loc:元素定位表达;元组类型,表达方式(元素定位类型,元素定位方法)
         :param timeout:等待的上限
@@ -50,6 +66,22 @@ class BasePage:
             return True
         except Exception as e:
             logger.exception('等待元素消失失败:{}'.format(e))
+            return False
+
+    # 判断元素是否可点击
+    def wait_ele_clickable(self, loc, timeout=20, poll_frequency=0.5):
+        """
+        :param loc:元素定位表达;元组类型,表达方式(元素定位类型,元素定位方法)
+        :param timeout:等待的上限
+        :param poll_frequency:轮询频率
+        :return:None
+        """
+        logger.info('等待元素可以点击,元素定位:{}'.format(loc))
+        try:
+            WebDriverWait(self.driver, timeout, poll_frequency).until(EC.element_to_be_clickable(loc))
+            return True
+        except Exception as e:
+            logger.exception('元素不可点击:{}'.format(e))
             return False
 
     # 查找一个元素element
@@ -86,7 +118,7 @@ class BasePage:
     def clean_text(self, loc):
         ele = self.find_element(loc)
         # 清除操作
-        logger.info('清除文本",元素定位:{}'.format(loc))
+        logger.info('清除文本,元素定位:{}'.format(loc))
         try:
             ele.clear()
         except Exception as e:
@@ -98,7 +130,7 @@ class BasePage:
         # 先查找元素在点击
         ele = self.find_element(loc)
         # 点击操作
-        logger.info('点击元素",元素定位:{}'.format(loc))
+        logger.info('点击元素,元素定位:{}'.format(loc))
         try:
             ele.click()
         except Exception as e:
@@ -176,3 +208,10 @@ class BasePage:
         except Exception:
             logger.exception('切换窗口失败!!!')
             raise
+
+    def screenshot(self):
+        """
+        截图功能
+        :return:
+        """
+        return self.driver.get_screenshot_as_png()
