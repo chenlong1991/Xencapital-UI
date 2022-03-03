@@ -8,6 +8,7 @@ import allure
 from common.basepage import BasePage
 from pagelocator.products_list_page_loc import ProductsListPageLoc as loc
 from common.tools import logger
+import time
 
 
 class ProductsDetailsPage(BasePage):
@@ -20,11 +21,12 @@ class ProductsDetailsPage(BasePage):
         with allure.step("点击【create】按钮。选择{}，输入Products名称，点击【create】".format(products_type)):
             self.wait_ele_visible(loc.menu_products)
             self.open_url(loc.url)
-            self.wait_ele_clickable(loc.btn_create)
+            self.wait_ele_clickable(loc.btn_create, timeout=30)
+            time.sleep(3)
             self.click(loc.btn_create)
             if products_type == 'Fund':
                 self.click(loc.btn_fund)
-            else:
+            elif products_type == 'Company':
                 self.click(loc.btn_company)
             self.input_text(loc.input_productName, products_name)
             self.click(loc.btn_create_)

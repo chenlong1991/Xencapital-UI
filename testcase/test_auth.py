@@ -10,10 +10,10 @@ from common.tools import logger
 from pageobjects.login_page import LoginPage
 
 
-@allure.feature('登录功能')
+@allure.feature('Auth')
 class TestAuth:
     @pytest.mark.parametrize('title, email, password, checkpoint', test_login_data)
-    @allure.story('老用户登录')
+    @allure.story('Old user login')
     @allure.title('{title}')
     @allure.testcase(r'http://www.baidu.com', name='对应功能测试用例')
     @allure.severity("normal")

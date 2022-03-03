@@ -6,27 +6,46 @@ Products Details Page元素定位
 
 class ProductsDetailsPageLoc:
     # fund详情页填写元素
+    box_products_details = ('xpath', "//div[@class='v-card__title headline']")
+
     input_productName = ('xpath', "//div[@label='＊ Product Name']//input")
 
-    drop_assetClass = ('xpath', "//label[contains(text(),'＊ Asset Class')]/following-sibling::input[1]")
-    drop_assetClass_list1 = ('xpath', "//div[contains(text(),'Hedge Funds')]")
+    drop_assetClass = ('xpath', "//div[label='＊ Asset Class']//input[1]")
+    drop_assetClass_HedgeFunds = ('xpath', "//div[text()='Hedge Funds']")
+    drop_assetClass_DirectInvestment = ('xpath', "//div[text()='Direct Investment']")
     err_assetClass = ('xpath', "//div[@label='＊ Asset Class']//div[text()='Field is required']")
 
     drop_currency = ('xpath', "//div[@label='＊ Currency']//input[1]")
-    drop_currency_list1 = ('xpath', "//div[contains(text(),'USD')]")
+    drop_currency_USD = ('xpath', "//div[text()='USD']")
     err_currency = ('xpath', "//div[@label='＊ Currency']//div[text()='Field is required']")
 
     input_fundSize = ('xpath', "//div[@label='＊ Fund Size']//input")
     err_fundSize = ('xpath', "//div[@label='＊ Fund Size']//div[text()='Field is required']")
 
+    input_valuation = ('xpath', "//div[@label='＊ Valuation']//input")
+    err_valuation = ('xpath', "//div[@label='＊ Valuation']//div[text()='Field is required']")
+
+    drop_fundingRound = ('xpath', "//div[@label='＊ Funding Round']//input")
+    drop_fundingRound_Pre_seed = ('xpath', "//div[text()='Pre-seed']")
+    err_fundingRound = ('xpath', "//div[@label='＊ Funding Round']//div[text()='Field is required']")
+
+    check_industries = ('xpath', "//div[@label='＊ Industries']//div[@class='v-input__append-inner']")
+    check_industries_input = ('xpath', "//div[@label='＊ Industries']//div[@class='v-select__selections']//input")
+    check_industries_Administrative = ('xpath', "//div[text()='Administrative Services']")
+    err_industries = ('xpath', "//div[@label='＊ Industries']//div[text()='Field is required']")
+
+    drop_headquarters = ('xpath', "//div[@label='＊ Headquarters']//input")
+    drop_headquarters_China = ('xpath', "//div[text()='China']")
+    err_headquarters = ('xpath', "//div[@label='＊ Headquarters']//div[text()='Field is required']")
+
     drop_focus = ('xpath', "//div[@label='＊ Focus']//input[1]")
-    drop_focus_list1 = ('xpath', "//div[contains(text(),'Caribbean')]")
+    drop_focus_Caribbean = ('xpath', "//div[text()='Caribbean']")
     err_focus = ('xpath', "//div[@label='＊ Focus']//div[text()='Field is required']")
 
     input_closingDate = ('xpath', "//div[@placeholder='DD/MM/YYYY']//input")
 
     drop_symbol = ('xpath', "//div[@label='＊ Symbol']//input[1]")
-    drop_symbol_list1 = ('xpath', "//div[contains(text(),'>')]")
+    drop_symbol_big = ('xpath', "//div[text()='>']")
     err_symbol = ('xpath', "//div[@label='＊ Symbol']//div[text()='Field is required']")
 
     input_expectedReturn = ('xpath', "//div[@label='＊ Expected Return']//input")
@@ -45,7 +64,7 @@ class ProductsDetailsPageLoc:
     input_minimumIncrement = ('xpath', "//div[@label='Minimum Increment']//input")
 
     drop_tags = ('xpath', "//div[@label='Tags']//div//div//i[1]")
-    drop_tags_list1 = ('xpath', "//div[contains(text(),'Growth')]")
+    drop_tags_Growth = ('xpath', "//div[text()='Growth']")
 
     input_templateIdIndividual = ('xpath', "//div[@label='DocuSign Template ID - Individual Client']//input")
     input_descriptionIndividual_en = ('xpath', "//div[@label='DocuSign Description (English) - Individual Client']//textarea")

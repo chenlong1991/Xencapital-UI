@@ -91,7 +91,7 @@ def pytest_runtest_makereport(item, call):
     # rep.when表示测试步骤，仅仅获取用例call 执行结果是失败的情况, 不包含 setup/teardown
     if rep.when == "call" and rep.failed:
         mode = "a" if os.path.exists("failures") else "w"
-        with open("failures", mode) as f:
+        with open("failures", mode, encoding='utf-8') as f:
             if "tmpdir" in item.fixturenames:
                 extra = " (%s)" % item.funcargs["tmpdir"]
             else:
@@ -102,6 +102,13 @@ def pytest_runtest_makereport(item, call):
             with allure.step('用例执行失败时，添加失败截图...'):
                 logger.error("用例执行失败，捕获当前页面......")
                 allure.attach(_driver.get_screenshot_as_png(), "失败截图", allure.attachment_type.PNG)
+
+
+def pytest_collection_modifyitems(items):
+    # 解决用例名称中文显示问题
+    for item in items:
+        item.name = item.name.encode("utf-8").decode("unicode-escape")
+        item._nodeid = item._nodeid.encode("utf-8").decode("unicode-escape")
 
 
 # @pytest.fixture(scope='class')
@@ -137,9 +144,13 @@ def pytest_runtest_makereport(item, call):
 def driver():
     global _driver
     try:
+        # options = webdriver.ChromeOptions()
+        # options.add_argument('window-size=1680x1050')
+        # _driver = webdriver.Chrome(chrome_options=options)
         _driver = webdriver.Chrome()
+        _driver.set_window_size(1680, 1050)
         # 最大化浏览器
-        _driver.maximize_window()
+        # _driver.maximize_window()
         # 隐式等待
         _driver.implicitly_wait(10)
         logger.info('初始化driver')
@@ -156,9 +167,10 @@ def admin_driver(driver):
     """
     admin用户登录
     """
-    logger.info('读取用户名，密码')
-    logger.info('用户名:{}，密码:{}'.format(conf_get('arocarret', 'admin_email'), conf_get('arocarret', 'admin_password')))
-    LoginPage(driver).login(conf_get('arocarret', 'admin_email'), conf_get('arocarret', 'admin_password'))
+    email = conf_get('arocarret', 'admin_email')
+    password = conf_get('arocarret', 'admin_password')
+    logger.info('读取用户名:{}，密码:{}'.format(email, password))
+    LoginPage(driver).login(email, password)
     yield driver
 
 
@@ -167,23 +179,8 @@ def investor_driver(driver):
     """
     investor用户登录
     """
-    global _driver
-    try:
-        if _driver is None:
-            logger.info('初始化driver')
-            _driver = webdriver.Chrome()
-            # 最大化浏览器
-            _driver.maximize_window()
-            # 隐式等待
-            _driver.implicitly_wait(10)
-    except Exception as e:
-        logger.error('初始化driver错误{}'.format(e))
-        raise
-    logger.info('读取用户名，密码')
-    login = LoginPage(_driver)
-    login.login(conf_get('arocarret', 'investor_email'), conf_get('arocarret', 'investor_password'))
-    logger.info('用户名:{}，密码:{}'.format(conf_get('arocarret', 'admin_email'), conf_get('arocarret', 'admin_password')))
-    yield _driver
-    logger.info('关闭浏览器')
-    _driver.quit()
-    _driver = None
+    email = conf_get('arocarret', 'investor_email')
+    password = conf_get('arocarret', 'investor_password')
+    logger.info('读取用户名: {}，密码: {}'.format(email, password))
+    LoginPage(driver).login(email, password)
+    yield driver

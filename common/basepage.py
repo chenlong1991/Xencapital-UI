@@ -4,10 +4,13 @@
 """
 
 from time import sleep
+
+from selenium.webdriver import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.webdriver import WebDriver
 from common.tools import logger
+from common.tools import conf_get
 
 
 class BasePage:
@@ -28,12 +31,12 @@ class BasePage:
         :param poll_frequency:轮询频率
         :return:None
         """
-        logger.info('元素存在,定位方式:{}'.format(loc))
         try:
             WebDriverWait(self.driver, timeout, poll_frequency).until(EC.presence_of_element_located(loc))
+            logger.info('元素存在,定位方式:{}'.format(loc))
             return True
         except Exception as e:
-            logger.exception('元素不存在：{}'.format(e))
+            logger.exception('{}元素不存在：{}'.format(loc, e))
             return False
 
     # 等待元素可见
@@ -44,12 +47,12 @@ class BasePage:
         :param poll_frequency:轮询频率
         :return:None
         """
-        logger.info('等待元素可见,定位方式:{}'.format(loc))
         try:
             WebDriverWait(self.driver, timeout, poll_frequency).until(EC.visibility_of_element_located(loc))
+            logger.info('等待元素可见,定位方式:{}'.format(loc))
             return True
         except Exception as e:
-            logger.exception('等待元素可见失败：{}'.format(e))
+            logger.exception('等待{}元素可见失败：{}'.format(loc, e))
             return False
 
     # 等待元素不可见
@@ -60,12 +63,12 @@ class BasePage:
         :param poll_frequency:轮询频率
         :return:None
         """
-        logger.info('等待元素消失,元素定位:{}'.format(loc))
         try:
             WebDriverWait(self.driver, timeout, poll_frequency).until_not(EC.visibility_of_element_located(loc))
+            logger.info('等待元素消失,元素定位:{}'.format(loc))
             return True
         except Exception as e:
-            logger.exception('等待元素消失失败:{}'.format(e))
+            logger.exception('等待{}元素消失失败:{}'.format(loc, e))
             return False
 
     # 判断元素是否可点击
@@ -76,28 +79,31 @@ class BasePage:
         :param poll_frequency:轮询频率
         :return:None
         """
-        logger.info('等待元素可以点击,元素定位:{}'.format(loc))
         try:
             WebDriverWait(self.driver, timeout, poll_frequency).until(EC.element_to_be_clickable(loc))
+            logger.info('等待元素可以点击,元素定位:{}'.format(loc))
             return True
         except Exception as e:
-            logger.exception('元素不可点击:{}'.format(e))
+            logger.exception('元素{}不可点击:{}'.format(loc, e))
             return False
 
     # 查找一个元素element
     def find_element(self, loc):
-        logger.info('查找元素，元素定位:{}'.format(loc))
         try:
-            return self.driver.find_element(*loc)
+            ele = self.driver.find_element(*loc)
+            logger.info('查找元素，元素定位:{}'.format(loc))
+            return ele
         except Exception as e:
             logger.exception('查找元素失败:{}'.format(e))
             raise
 
     # 查找多个元素elements
     def find_elements(self, loc):
-        logger.info('查找多个元素，元素定位:{}'.format(loc))
+
         try:
-            return self.driver.find_elements(*loc)
+            ele = self.driver.find_elements(*loc)
+            logger.info('查找多个元素，元素定位:{}'.format(loc))
+            return ele
         except Exception as e:
             logger.exception('查找多个元素失败:{}'.format(e))
             raise
@@ -107,9 +113,9 @@ class BasePage:
         # 查找元素
         ele = self.find_element(loc)
         # 输入操作
-        logger.info('文本框输入{},元素定位:{}'.format(text, loc))
         try:
             ele.send_keys(text)
+            logger.info('文本框输入{}'.format(text))
         except Exception as e:
             logger.exception('输入操作失败:{}'.format(e))
             raise
@@ -118,21 +124,51 @@ class BasePage:
     def clean_text(self, loc):
         ele = self.find_element(loc)
         # 清除操作
-        logger.info('清除文本,元素定位:{}'.format(loc))
         try:
             ele.clear()
+            logger.info('清除文本')
         except Exception as e:
             logger.exception('清除操作失败:{}'.format(e))
             raise
+
+    def backspace(self, loc):
+        ele = self.find_element(loc)
+        # 退格操作
+        try:
+            ele.send_keys(Keys.BACKSPACE)
+            logger.info('退格操作')
+        except Exception as e:
+            logger.exception('退格操作失败:{}'.format(e))
+            raise
+
+    def select_all(self, loc):
+        ele = self.find_element(loc)
+        # 全选操作
+        try:
+            if 'OS' in conf_get('lambdatest_conf', 'platform'):
+                ele.send_keys(Keys.COMMAND + 'a')
+                logger.info('MAC系统全选操作')
+            else:
+                ele.send_keys(Keys.CONTROL + 'a')
+                logger.info('Windows系统全选操作')
+        except Exception as e:
+            logger.exception('全选操作失败:{}'.format(e))
+            raise
+
+    def backspace_all(self, loc):
+        # 全选退格操作
+        logger.info('全选退格操作')
+        self.select_all(loc)
+        self.backspace(loc)
 
     # 点击操作
     def click(self, loc):
         # 先查找元素在点击
         ele = self.find_element(loc)
         # 点击操作
-        logger.info('点击元素,元素定位:{}'.format(loc))
         try:
             ele.click()
+            logger.info('点击元素')
         except Exception as e:
             logger.exception('点击失败:{}'.format(e))
             raise
@@ -142,7 +178,6 @@ class BasePage:
         # 先查找元素在获取文本内容
         ele = self.find_element(loc)
         # 获取文本
-        logger.info('获取元素文本内容，元素定位:{}'.format(loc))
         try:
             text = ele.text
             logger.info('获取元素文本内容为:{}'.format(text))
@@ -156,13 +191,22 @@ class BasePage:
         # 先查找元素在去获取属性值
         ele = self.find_element(loc)
         # 获取元素属性值
-        logger.info('获取元素{}属性，元素定位:{}'.format(name, loc))
         try:
             ele_attribute = ele.get_attribute(name)
             logger.info('获取到元素{}属性值为：{}'.format(name, ele_attribute))
             return ele_attribute
         except Exception as e:
             logger.exception('获取元素属性失败:{}'.format(e))
+            raise
+
+    # 上下滑动窗口让元素可见
+    def sliding_window(self, loc):
+        ele = self.find_element(loc)
+        try:
+            self.driver.execute_script("arguments[0].scrollIntoView();", ele)
+            logger.info('滑动窗口让元素可见')
+        except Exception as e:
+            logger.error('滑动窗口让元素可见失败：{}'.format(e))
             raise
 
     # iframe 切换
