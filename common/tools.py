@@ -1,7 +1,7 @@
 # -*-coding:utf-8 -*-
 import logging
 import os
-from datetime import datetime
+import datetime
 from configparser import ConfigParser
 
 from faker import Faker
@@ -32,7 +32,7 @@ class Logger(logging.Logger):
         self.addHandler(console)
 
 
-now_time = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
 paths = os.path.join(log_path(), '{}.log'.format(now_time))
 logger = Logger(path=paths)
 
@@ -57,6 +57,10 @@ def conf_get(section, option, name='config.ini'):
         raise
 
 
+# 测试域名
+url = conf_get('ip', 'arocarret')
+
+
 def faker(language='en_US'):
     """
     创建假数据
@@ -65,3 +69,17 @@ def faker(language='en_US'):
     """
     fakers = Faker(locale=language)
     return fakers
+
+
+def now_time(days=0):
+    """
+    获取当前时间之前或之后的日期
+    :param days: 正数表示之后多少天，负数表示之前
+    :return:
+    """
+    now_date = datetime.datetime.now().strftime('%d%m%Y')
+    time = datetime.datetime.strptime(now_date, '%d%m%Y')
+    delta = datetime.timedelta(days=days)
+    n_time = (time + delta).strftime('%d%m%Y')
+    return n_time
+

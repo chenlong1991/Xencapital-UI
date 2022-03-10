@@ -140,7 +140,7 @@ def pytest_collection_modifyitems(items):
 #         logger.error('初始化driver错误{}'.format(e))
 #         raise
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def driver():
     global _driver
     try:

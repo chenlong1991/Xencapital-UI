@@ -3,20 +3,28 @@
 Products测试相关数据
 """
 from pagelocator.products_details_page_loc import ProductsDetailsPageLoc as loc
-from common.tools import faker
+from common.tools import faker, now_time
 
 # 创建 Products 并发布
 test_create_products = [
     ('正常填写Fund信息',
      {'products_type': 'Fund',
       'products_name': faker().company(),
-      'fund_value':
-          [
-              None, loc.drop_assetClass_HedgeFunds, loc.drop_currency_USD, 12000000, loc.drop_focus_Caribbean, 25122025,
-              loc.drop_symbol_big, 12, 12, 2022, 'xencapital.com', 'gary@xen.io', '1234', 100,
-              '9d00463a-e04d-43ca-a8d9-13b57fa62ea2', '个人英文描述', '个人中文描述', '9d00463a-e04d-43ca-a8d9-13b57fa62ea2', '公司英文描述', '公司中文描述'
-          ]
-      })]
+      'products_value':
+          {
+              ('drop', loc.drop_assetClass): loc.drop_assetClass_HedgeFunds,
+              ('drop', loc.drop_currency): loc.drop_currency_USD,
+              ('input', loc.input_fundSize): 12000000,
+              ('drop', loc.drop_focus): loc.drop_focus_Caribbean,
+              ('input', loc.input_closingDate): now_time(2),
+              ('drop', loc.drop_symbol): loc.drop_symbol_big,
+              ('input', loc.input_expectedReturn): 12,
+              ('input', loc.input_minHoldingPeriod): 12,
+              ('input', loc.input_minimumInvestment): 10000
+          }
+      }
+     )
+]
 
 # 创建 Products 校验必填项
 test_create_products_check_required = [

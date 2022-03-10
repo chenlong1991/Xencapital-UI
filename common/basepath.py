@@ -22,3 +22,8 @@ conf_path = os.path.join(base_path, 'conf')
 
 # 测试数据路径
 test_data_path = os.path.join(base_path, 'testdata')
+
+
+
+if __name__ == '__main__':
+    print(url)

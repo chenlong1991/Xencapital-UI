@@ -46,6 +46,8 @@ class ProductsPage(BasePage):
                         else:
                             self.click(value)
                         self.click(key[1])
+                    else:
+                        logger.error('控件类型错误')
             except Exception as e:
                 logger.error('填写Products信息错误：{}'.format(e))
                 raise

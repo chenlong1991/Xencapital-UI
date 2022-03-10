@@ -5,7 +5,7 @@
 """
 import allure
 import pytest
-from testdata.auth_data import test_login_data
+from testdata.test_login import test_login_data
 from common.tools import logger
 from pageobjects.login_page import LoginPage
 
@@ -18,7 +18,8 @@ class TestAuth:
     @allure.testcase(r'http://www.baidu.com', name='对应功能测试用例')
     @allure.severity("normal")
     def test_login(self, driver, title, email, password, checkpoint):
+        logger.info(title)
         login_page = LoginPage(driver)
         login_page.login(email, password)
         logger.info('断言预期结果')
-        assert login_page.wait_ele_visible(checkpoint, timeout=10)
+        assert login_page.wait_ele_visible(checkpoint, timeout=30)
